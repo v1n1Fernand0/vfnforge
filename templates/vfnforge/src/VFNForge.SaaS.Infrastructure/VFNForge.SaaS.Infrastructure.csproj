@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\VFNForge.SaaS.Application\VFNForge.SaaS.Application.csproj" />
-    <ProjectReference Include="..\VFNForge.SaaS.Domain\VFNForge.SaaS.Domain.csproj" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VFNForge.SaaS.Application\VFNForge.SaaS.Application.csproj" />
+    <ProjectReference Include="..\VFNForge.SaaS.Contracts\VFNForge.SaaS.Contracts.csproj" />
+    <ProjectReference Include="..\VFNForge.SaaS.Domain\VFNForge.SaaS.Domain.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -83,6 +83,18 @@ vfnforge api -n MinhaApp [-o ./saida] [outros argumentos do dotnet new]
 ```
 O comando `vfnforge api` e um alias amigavel para `dotnet new vfnforge`.
 
+## Autenticacao JWT + multi-tenant por configuracao
+O projeto gerado ja inclui:
+- Autenticacao JWT configurada em `appsettings.*` (secao `Jwt`). Basta alterar `Issuer`, `Audience` e principalmente `SigningKey` (ou apontar `Authority` para seu Identity Provider) e publicar.
+- Middleware de resolucao de tenant (`X-Tenant-ID` por padrao) e filtro aplicado aos endpoints `/api`. A lista de tenants fica em `Tenancy:Tenants`.
+
+Fluxo padrao:
+1. Gere/obtenha um token JWT contendo o audience configurado e (opcionalmente) o claim `tenant_id`.
+2. Envie a requisicao com `Authorization: Bearer <token>` e o header `X-Tenant-ID` correspondente. Caso nao envie o header, o tenant sera resolvido pelo claim ou caira no `DefaultTenantId`.
+3. Caso queira aceitar tenants dinamicos, adicione-os em `appsettings.json` (ou use feature flag para desabilitar `RequireKnownTenant`).
+
+Todo middleware/filtro ja esta registrado; mudancas ficam centralizadas nas configuracoes.
+
 ## Instalador Windows (.exe)
 No diretorio `installers/Windows/VFNForge.Installer/` existe um bootstrapper que baixa o repo oficial (`https://github.com/v1n1Fernand0/vfnforge`), instala o template e registra o global tool automaticamente.
 
