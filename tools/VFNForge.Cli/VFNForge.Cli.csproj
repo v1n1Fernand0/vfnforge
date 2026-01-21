@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>vfnforge</ToolCommandName>
+    <PackageId>VFNForge.Cli</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Vinicius Fernando</Authors>
+    <Description>Simple wrapper that forwards to `dotnet new vfnforge` with nicer ergonomics.</Description>
+    <PackageTags>dotnet-tool;saas;template</PackageTags>
+    <RepositoryUrl>https://github.com/vinic/vfnforge</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+</Project>

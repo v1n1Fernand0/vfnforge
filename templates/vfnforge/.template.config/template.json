@@ -1,11 +1,84 @@
 {
   "$schema": "http://json.schemastore.org/template",
   "author": "Vinicius Fernando",
-  "classifications": [ "SaaS", "CleanArchitecture" ],
+  "classifications": [ "SaaS", "CleanArchitecture", ".NET" ],
   "name": "VFNForge SaaS Template",
   "identity": "VFNForge.Templates.SaaS",
+  "groupIdentity": "VFNForge.Templates.SaaS",
   "shortName": "vfnforge",
   "sourceName": "VFNForge.SaaS",
   "preferNameDirectory": true,
-  "tags": { "language": "C#", "type": "project" }
+  "description": "Opinionated Clean Architecture SaaS starter built with .NET 10.",
+  "defaultName": "VFNForgeApp",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "skipRestore": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "If specified, skips the automatic restore of the project on create."
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            ".git/**",
+            ".vs/**",
+            "_out/**",
+            "**/[Bb]in/**",
+            "**/[Oo]bj/**",
+            "**/*.user",
+            "**/*.userosscache",
+            "**/*.rsuser",
+            "**/*.suo",
+            "**/*.env",
+            "**/*.code-workspace",
+            "**/.DS_Store"
+          ]
+        }
+      ],
+      "copyOnly": [
+        ".editorconfig",
+        ".gitignore",
+        "global.json"
+      ]
+    }
+  ],
+  "primaryOutputs": [
+    {
+      "path": "VFNForge.SaaS.slnx"
+    }
+  ],
+  "postActions": [
+    {
+      "id": "restore",
+      "condition": "(!skipRestore)",
+      "description": "Restore NuGet packages required by this project.",
+      "manualInstructions": [
+        { "text": "Run 'dotnet restore'" },
+        { "text": "Then cd into the generated folder" },
+        { "text": "Run 'dotnet build'" },
+        { "text": "Run 'dotnet run --project src/<YourApp>.Api/<YourApp>.Api.csproj'" }
+      ],
+      "args": {
+        "files": [ "VFNForge.SaaS.slnx" ]
+      },
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    },
+    {
+      "id": "nextSteps",
+      "description": "Next steps once the template is created.",
+      "manualInstructions": [
+        { "text": "cd into the generated folder\n dotnet build\n dotnet run --project src/<YourApp>.Api/<YourApp>.Api.csproj" }
+      ],
+      "actionId": "AC1156F7-BB77-4DB8-B28F-24EEBCCA1E5C",
+      "continueOnError": true
+    }
+  ]
 }
