@@ -1,166 +1,120 @@
 # VFNForge
 
-VFNForge e um template SaaS opinativo construido sobre .NET 10, com arquitetura em camadas (Api, Application, Domain, Infrastructure, Contracts) e pensado para ser instalado tanto via repositorio local quanto como pacote NuGet, funcionando igualmente em Windows, Linux e macOS.
+VFNForge é um template SaaS opinativo para .NET 10. Ele entrega uma solução completa (Api, Application, Domain, Infrastructure, Contracts) com JWT + multi-tenant configurados, EF Core pronto para SQL Server, scripts cross-platform e um CLI (`vfnforge`) para gerar projetos em poucos segundos.
 
-## Estrutura do repositorio
-- `templates/vfnforge/` - payload do template (solution, projetos e `.template.config`).
-- `pack/VFNForge.Templates.csproj` - projeto de empacotamento NuGet do template.
-- `scripts/` - automacoes cross-platform para instalar/desinstalar/testar o template localmente.
-- `tools/VFNForge.Cli/` - ferramenta global opcional (`vfnforge`) que delega para `dotnet new vfnforge`.
-- `_out/` - area de artefatos temporarios/smoke tests (ignorada).
+## Comece agora
 
-## Pre-requisitos
-- .NET SDK 10.0.100 (fixado em `templates/vfnforge/global.json`).
-- PowerShell 7+ ou Bash para executar os scripts (todos os comandos podem ser rodados manualmente se preferir).
-
-## Fluxo local do template
-### Windows (PowerShell)
+### Windows (PowerShell 7+)
 ```powershell
-# instalar a partir do repositorio clonado
-pwsh ./scripts/vfnforge.ps1 install
-
-# gerar e compilar um app de exemplo
-pwsh ./scripts/vfnforge.ps1 test MinhaApp
-
-# desinstalar quando terminar
-pwsh ./scripts/vfnforge.ps1 uninstall
-```
-Ou rode os comandos manualmente:
-```powershell
-dotnet new install .\templates\vfnforge
-dotnet new vfnforge -n MinhaApp
-Get-ChildItem MinhaApp
+irm https://raw.githubusercontent.com/v1n1Fernand0/vfnforge/main/scripts/bootstrap/install.ps1 | iex
+vfnforge api MinhaEmpresa
 ```
 
 ### Linux/macOS (Bash)
 ```bash
-# instalar
+curl -sSL https://raw.githubusercontent.com/v1n1Fernand0/vfnforge/main/scripts/bootstrap/install.sh | bash
+vfnforge api MinhaEmpresa
+```
+
+Pronto! O comando `vfnforge api` pergunta o nome se você não passar argumento e cria uma pasta já com solution `.slnx`, projetos, JWT/Tenant configurados e todo o pipeline pronto.
+
+## Pré-requisitos
+- .NET SDK 10.0.100 (há um `global.json` no template fixando esta versão).
+- PowerShell 7+ ou Bash (se preferir rodar os scripts; todos os comandos funcionam manualmente).
+
+## Instalação local (repo clonado)
+Se você já clonou este repositório:
+
+### PowerShell
+```powershell
+pwsh ./scripts/vfnforge.ps1 install      # registra o template
+pwsh ./scripts/vfnforge.ps1 test MinhaApp # gera, compila e apaga um smoke test
+pwsh ./scripts/vfnforge.ps1 uninstall    # remove o template local
+```
+
+### Bash
+```bash
 bash ./scripts/vfnforge.sh install
-
-# smoke test
 bash ./scripts/vfnforge.sh test MinhaApp
-
-# desinstalar
 bash ./scripts/vfnforge.sh uninstall
 ```
-Comandos equivalentes:
+
+Ou rode manualmente:
+```powershell
+dotnet new install .\templates\vfnforge
+vfnforge api MinhaApp
+```
+
+## CLI `vfnforge`
+Instalar o template também instala o Global Tool `vfnforge`.
+
 ```bash
-dotnet new install ./templates/vfnforge
-dotnet new vfnforge -n MinhaApp
-dotnet build MinhaApp/MinhaApp.slnx
+vfnforge api MinhaApp               # usa o nome como diretório por padrão
+vfnforge api                        # modo interativo (pergunta nome e pasta)
+vfnforge api --in-place -n MinhaApp # gera na pasta atual
+vfnforge api MinhaApp --force       # sobrescreve diretório existente
+vfnforge api -- --dry-run           # passa argumentos direto para o dotnet new
 ```
 
-### Instalacao 1-liner
-Scripts de bootstrap fazem o download do repo, instalam o template e registram o global tool automaticamente.
+Se você preferir não instalar o tool, basta chamar `dotnet new vfnforge` com os mesmos parâmetros.
 
-**Windows (PowerShell 7+)**
-```powershell
-irm https://raw.githubusercontent.com/v1n1Fernand0/vfnforge/main/scripts/bootstrap/install.ps1 | iex
-```
-Opcoes: `-Branch main`, `-Repository <url>`, `-NoCli`.
+## Outras formas de instalação
+- **dotnet new direto do GitHub**  
+  `dotnet new install https://github.com/v1n1Fernand0/vfnforge`  
+  (use `::main` para fixar a branch ou `dotnet new uninstall ...` para remover)
 
-**Linux/macOS (Bash)**
-```bash
-curl -sSL https://raw.githubusercontent.com/v1n1Fernand0/vfnforge/main/scripts/bootstrap/install.sh | bash
-```
-Opcoes: `--branch main`, `--repo <url>`, `--no-cli`.
+- **Instalador Windows (.exe)**  
+  Gere com:
+  ```powershell
+  dotnet publish installers/Windows/VFNForge.Installer/VFNForge.Installer.csproj `
+      -c Release -r win-x64 --self-contained true `
+      /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
+  ```
+  Distribua o `VFNForge.Installer.exe` gerado. Ele baixa este repo, instala o template, registra o CLI e mostra `vfnforge api MinhaApp` como próximo passo. Argumentos: `--branch <nome>`, `--no-cli`, `--keep-temp`.
 
-Depois desse comando voce ja consegue rodar `vfnforge api MinhaApp` (ou apenas `vfnforge api` para usar o assistente) em qualquer terminal.
+- **Fluxo NuGet**  
+  1. `dotnet pack ./pack/VFNForge.Templates.csproj -c Release -o ./_out/nuget`  
+  2. `dotnet nuget push _out/nuget/VFNForge.Templates.<versao>.nupkg --api-key <TOKEN> --source https://api.nuget.org/v3/index.json`  
+  3. Usuários finais instalam com `dotnet new install VFNForge.Templates` e geram com `vfnforge api MinhaApp`.
 
-### Instalacao direta via GitHub (dotnet new install)
-Tambem e possivel usar apenas o `dotnet new` para consumir o repo:
-- `dotnet new install https://github.com/v1n1Fernand0/vfnforge`
-- `dotnet new install https://github.com/v1n1Fernand0/vfnforge::main` (branch especifica)
-- `dotnet new uninstall https://github.com/v1n1Fernand0/vfnforge`
-## CLI `vfnforge api`
-Instalar o template tambem traz o Global Tool `vfnforge`, que foi pensado para deixar o fluxo o mais simples possivel:
-```bash
-vfnforge api MinhaApp              # cria ./MinhaApp com tudo renomeado
-vfnforge api                       # abre um assistente interativo e pergunta o nome
-vfnforge api --in-place -n MinhaApp  # usa a pasta atual sem criar subdiretorio
-vfnforge api MinhaApp --force      # sobrescreve uma pasta existente (cuidado)
-vfnforge api -- --dry-run          # argumentos extras sao repassados ao dotnet new
-```
-Voce pode simplesmente informar o nome como primeiro argumento (ex.: `vfnforge api MinhaApp`) e o CLI reutiliza o mesmo valor como pasta de saida. Caso nenhum nome seja passado, ele abre um assistente perguntando o nome/diretorio. Para gerar dentro de uma pasta existente, utilize `--in-place` e, se ela ja contiver arquivos, confirme com `--force` (ou responda `y` no modo interativo). O comando `vfnforge api` continua sendo apenas um alias amigavel para `dotnet new vfnforge`, entao todos os parametros da CLI oficial permanecem disponiveis.
+## O que vem pronto no template
+- **JWT** configurado (Issuer/Audience/SigningKey em `appsettings.*`). Basta trocar as credenciais ou apontar `Authority`.
+- **Resolução multi-tenant** via header `X-Tenant-ID` ou claim `tenant_id`, com middleware + endpoint filter.
+- **Entidade Tenant** atravessando Domain → Application → Infrastructure, erros centralizados em `Domain/Common/DomainErrors.cs`.
+- **Controllers prontos** (`/api/tenants` com GET/POST/PUT/activate/deactivate) protegidos por JWT.
+- **EF Core + SQL Server** (`VFNForgeDbContext`, `TenantConfiguration`, seeding automático baseado em `Tenancy:Tenants` e `DefaultTenantId`).
+- **Scripts cross-platform** (`scripts/vfnforge.(ps1|sh)` + bootstrap 1-liner).
+- **Arquivos essenciais** (`.slnx`, `.gitignore`, `.editorconfig`, `global.json`, `Directory.Build.props` com `net10.0`).
 
-## Autenticacao JWT + multi-tenant por configuracao
-O projeto gerado ja inclui:
-- Autenticacao JWT configurada em `appsettings.*` (secao `Jwt`). Basta alterar `Issuer`, `Audience` e principalmente `SigningKey` (ou apontar `Authority` para seu Identity Provider) e publicar.
-- Middleware de resolucao de tenant (`X-Tenant-ID` por padrao) e filtro aplicado aos endpoints `/api`. A lista de tenants fica em `Tenancy:Tenants`.
-- Um fluxo completo de dominio → aplicacao → infraestrutura usando a entidade `Tenant`. As mensagens de erro de dominio ficam centralizadas em `src/VFNForge.SaaS.Domain/Abstractions/DomainErrors.cs` e voce pode expandir conforme suas regras.
-- Endpoint `/api/tenants` para consultar os tenants configurados e ver os DTOs/servicos em acao.
-- `ConnectionStrings:SqlServer` ja esta pronto para apontar para o seu SQL Server; basta ajustar no `appsettings.*` e o `VFNForgeDbContext` sera configurado automaticamente via `AddInfrastructureData`.
-- Controller `TenantsController` expõe `GET/POST/PUT` e as operacoes de `activate/deactivate`, tudo protegido por JWT e validando tenant.
-- Os tenants definidos em `Tenancy:Tenants` sao semeados automaticamente no banco na primeira execucao, garantindo que o tenant padrao exista.
+## Estrutura do repositório
+- `templates/vfnforge/` – conteúdo do template (solution, projetos, `.template.config`).
+- `scripts/` – instalação/desinstalação/teste automáticos e bootstraps (curl/irm).
+- `pack/VFNForge.Templates.csproj` – projeto usado para gerar o pacote NuGet.
+- `tools/VFNForge.Cli/` – código do Global Tool (alias `vfnforge api`).
+- `installers/Windows/` – instalador self-contained (.exe).
+- `_out/` – pasta de artefatos temporários/smoke-tests (é ignorada por git/template).
 
-Fluxo padrao:
-1. Gere/obtenha um token JWT contendo o audience configurado e (opcionalmente) o claim `tenant_id`.
-2. Envie a requisicao com `Authorization: Bearer <token>` e o header `X-Tenant-ID` correspondente. Caso nao envie o header, o tenant sera resolvido pelo claim ou caira no `DefaultTenantId`.
-3. Caso queira aceitar tenants dinamicos, adicione-os em `appsettings.json` (ou use feature flag para desabilitar `RequireKnownTenant`).
+## Publicar o template pack
+1. Atualize versão/metadados em `pack/VFNForge.Templates.csproj`.
+2. `dotnet pack ./pack/VFNForge.Templates.csproj -c Release -o ./_out/nuget`.
+3. Publique (`dotnet nuget push ...`) no feed desejado.
+4. Divulgue: `dotnet new install VFNForge.Templates` + `vfnforge api MinhaEmpresa`.
 
-Todo middleware/filtro ja esta registrado; mudancas ficam centralizadas nas configuracoes.
-
-## Instalador Windows (.exe)
-No diretorio `installers/Windows/VFNForge.Installer/` existe um bootstrapper que baixa o repo oficial (`https://github.com/v1n1Fernand0/vfnforge`), instala o template e registra o global tool automaticamente.
-
-### Como gerar o instalador
-```powershell
-dotnet publish installers/Windows/VFNForge.Installer/VFNForge.Installer.csproj `
-    -c Release -r win-x64 --self-contained true `
-    /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
-```
-O executavel sai em `installers/Windows/VFNForge.Installer/bin/Release/net10.0/win-x64/publish/VFNForge.Installer.exe`. Distribua esse arquivo para os usuarios Windows ou disponibilize o `.exe` em uma release do GitHub para que o usuario apenas baixe e rode:
+## Ferramenta global (`vfnforge`)
+`tools/VFNForge.Cli` contém o console app configurado como Global Tool. Para testar localmente:
 
 ```powershell
-Invoke-WebRequest https://github.com/v1n1Fernand0/vfnforge/releases/latest/download/VFNForge.Installer.exe -OutFile vfnforge-installer.exe
-./vfnforge-installer.exe
-```
-
-
-### O que o instalador faz
-- Baixa o zip da branch escolhida (default `main`).
-- Executa `dotnet new install` apontando para `templates/vfnforge`.
-- Executa `dotnet pack` + `dotnet tool install --global VFNForge.Cli` a partir da pasta `tools/VFNForge.Cli`.
-- Exibe mensagem final com `vfnforge api MinhaApp`.
-
-Argumentos disponiveis:
-```
-VFNForge.Installer.exe [opcoes]
-  --branch|-b <nome>   branch/tag do Git (padrao: main)
-  --no-cli             pula instalacao do global tool (so instala o template)
-  --keep-temp          mantem a pasta temporaria para debug
-```
-O instalador exige que o .NET SDK 10 esteja presente (mesmo requisito do template).
-
-## Empacotamento e publicacao (NuGet)
-1. Gerar o pacote `VFNForge.Templates`:
-   - Windows: `dotnet pack .\pack\VFNForge.Templates.csproj -c Release -o .\_out\nuget`
-   - Linux/macOS: `dotnet pack ./pack/VFNForge.Templates.csproj -c Release -o ./_out/nuget`
-2. Publicar no NuGet.org (ou feed privado):
-   - `dotnet nuget push _out/nuget/VFNForge.Templates.<versao>.nupkg --api-key <TOKEN> --source https://api.nuget.org/v3/index.json`
-3. Consumir: `dotnet new install VFNForge.Templates` e `dotnet new vfnforge -n MinhaApp`.
-
-O template gera uma `.slnx`, aplica `net10.0` via `Directory.Build.props`, inclui `.gitignore`, `.editorconfig` e `global.json`, e ja ignora bin/obj/.vs/_out etc. durante a instalacao (`template.json`).
-
-## Ferramenta global opcional (`vfnforge`)
-O diretorio `tools/VFNForge.Cli` contem um console app configurado como .NET Global Tool. Ele fornece o comando amigavel `vfnforge api`, que internamente chama `dotnet new vfnforge` e cuida do nome e da pasta automaticamente.
-
-Para testar localmente:
-```powershell
-# empacotar o tool
 dotnet pack .\tools\VFNForge.Cli\VFNForge.Cli.csproj -c Release -o .\_out\tool
-# instalar via source local
 dotnet tool install --global VFNForge.Cli --add-source .\_out\tool
 vfnforge api MinhaApp
 vfnforge --version
 ```
-Publicar o tool e opcional; o template ja entrega o fluxo principal.
 
-## Checklist de validacao
-1. `dotnet new uninstall VFNForge.Templates` (caso ja exista).
+## Checklist de validação
+1. `dotnet new uninstall VFNForge.Templates` (garante ambiente limpo).
 2. `dotnet new install ./templates/vfnforge`.
-3. `dotnet new vfnforge -n SmokeTest -o _out/smoke/SmokeTest`.
+3. `vfnforge api SmokeTest -o _out/smoke/SmokeTest`.
 4. `dotnet build _out/smoke/SmokeTest/SmokeTest.slnx`.
-5. (Opcional) `bash|pwsh ./scripts/vfnforge.(sh|ps1) test` automatiza tudo.
-6. `dotnet pack pack/VFNForge.Templates.csproj -c Release` para garantir o pacote NuGet.
-7. `dotnet test tests/VFNForge.SaaS.Domain.Tests/VFNForge.SaaS.Domain.Tests.csproj` para ver o exemplo de teste unitario em cima da camada de dominio.
+5. (Opcional) `bash|pwsh ./scripts/vfnforge.(sh|ps1) test`.
+6. `dotnet pack pack/VFNForge.Templates.csproj -c Release`.
+7. `dotnet test templates/vfnforge/tests/VFNForge.SaaS.Domain.Tests/VFNForge.SaaS.Domain.Tests.csproj`.
