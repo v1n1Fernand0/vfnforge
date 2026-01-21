@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using VFNForge.SaaS.Domain.Tenants;
 
-namespace VFNForge.SaaS.Infrastructure.Data.Configurations;
+namespace VFNForge.SaaS.Infrastructure.Persistence.Data.Configurations;
 
 public sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 {

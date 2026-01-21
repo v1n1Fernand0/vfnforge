@@ -1,4 +1,4 @@
-namespace VFNForge.SaaS.Domain.Abstractions;
+namespace VFNForge.SaaS.Domain.Common;
 
 public sealed class DomainException : Exception
 {

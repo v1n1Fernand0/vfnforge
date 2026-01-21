@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using VFNForge.SaaS.Domain.Tenants;
 
-namespace VFNForge.SaaS.Infrastructure.Data;
+namespace VFNForge.SaaS.Infrastructure.Persistence.Data;
 
 public sealed class VFNForgeDbContext : DbContext
 {

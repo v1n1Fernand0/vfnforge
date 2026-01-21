@@ -86,6 +86,8 @@ O projeto gerado ja inclui:
 - Um fluxo completo de dominio → aplicacao → infraestrutura usando a entidade `Tenant`. As mensagens de erro de dominio ficam centralizadas em `src/VFNForge.SaaS.Domain/Abstractions/DomainErrors.cs` e voce pode expandir conforme suas regras.
 - Endpoint `/api/tenants` para consultar os tenants configurados e ver os DTOs/servicos em acao.
 - `ConnectionStrings:SqlServer` ja esta pronto para apontar para o seu SQL Server; basta ajustar no `appsettings.*` e o `VFNForgeDbContext` sera configurado automaticamente via `AddInfrastructureData`.
+- Controller `TenantsController` expõe `GET/POST/PUT` e as operacoes de `activate/deactivate`, tudo protegido por JWT e validando tenant.
+- Os tenants definidos em `Tenancy:Tenants` sao semeados automaticamente no banco na primeira execucao, garantindo que o tenant padrao exista.
 
 Fluxo padrao:
 1. Gere/obtenha um token JWT contendo o audience configurado e (opcionalmente) o claim `tenant_id`.

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using VFNForge.SaaS.Infrastructure.Data;
+using VFNForge.SaaS.Infrastructure.Persistence.Data;
 
 namespace VFNForge.SaaS.Infrastructure.Extensions;
 

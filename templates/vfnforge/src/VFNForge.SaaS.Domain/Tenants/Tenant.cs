@@ -1,4 +1,4 @@
-using VFNForge.SaaS.Domain.Abstractions;
+using VFNForge.SaaS.Domain.Common;
 
 namespace VFNForge.SaaS.Domain.Tenants;
 

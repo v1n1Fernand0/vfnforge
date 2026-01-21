@@ -1,4 +1,4 @@
-using VFNForge.SaaS.Domain.Abstractions;
+using VFNForge.SaaS.Domain.Common;
 using VFNForge.SaaS.Domain.Tenants;
 
 namespace VFNForge.SaaS.Domain.Tests;
