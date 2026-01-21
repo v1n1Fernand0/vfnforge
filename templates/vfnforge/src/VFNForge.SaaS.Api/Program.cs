@@ -3,9 +3,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using VFNForge.SaaS.Api.Extensions;
 using VFNForge.SaaS.Api.Middleware;
+using VFNForge.SaaS.Application.Tenants;
 using VFNForge.SaaS.Contracts.Auth;
 using VFNForge.SaaS.Contracts.Tenancy;
+using VFNForge.SaaS.Domain.Tenants;
 using VFNForge.SaaS.Infrastructure.Tenancy;
+using VFNForge.SaaS.Infrastructure.Tenants;
+using VFNForge.SaaS.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +19,9 @@ builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(Tena
 builder.Services.AddSingleton<ITenantAccessor, TenantContextAccessor>();
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<TenantRequirementFilter>();
+builder.Services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
+builder.Services.AddScoped<ITenantQueryService, TenantQueryService>();
+builder.Services.AddInfrastructureData(builder.Configuration);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -76,6 +83,11 @@ api.MapGet("/weatherforecast", () =>
     })
     .WithName("GetWeatherForecast")
     .WithDescription("Exemplo protegido por JWT + Tenant. Atualize appsettings e use bearer token.");
+
+api.MapGet("/tenants", async (ITenantQueryService service, CancellationToken cancellationToken) =>
+    Results.Ok(await service.ListAsync(cancellationToken)))
+    .WithName("GetTenants")
+    .WithSummary("Lista os tenants configurados (exemplo completo de fluxo contrato/aplicacao/infrastructure).");
 
 app.Run();
 

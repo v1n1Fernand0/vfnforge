@@ -6,4 +6,7 @@
     <Project Path="src/VFNForge.SaaS.Domain/VFNForge.SaaS.Domain.csproj" />
     <Project Path="src/VFNForge.SaaS.Infrastructure/VFNForge.SaaS.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/VFNForge.SaaS.Domain.Tests/VFNForge.SaaS.Domain.Tests.csproj" />
+  </Folder>
 </Solution>

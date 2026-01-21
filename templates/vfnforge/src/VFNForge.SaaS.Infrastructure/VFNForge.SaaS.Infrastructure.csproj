@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\VFNForge.SaaS.Application\VFNForge.SaaS.Application.csproj" />
     <ProjectReference Include="..\VFNForge.SaaS.Contracts\VFNForge.SaaS.Contracts.csproj" />
     <ProjectReference Include="..\VFNForge.SaaS.Domain\VFNForge.SaaS.Domain.csproj" />
