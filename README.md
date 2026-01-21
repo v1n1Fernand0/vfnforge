@@ -78,9 +78,10 @@ Instalar o template tambem traz o Global Tool `vfnforge`, que foi pensado para d
 vfnforge api MinhaApp              # cria ./MinhaApp com tudo renomeado
 vfnforge api                       # abre um assistente interativo e pergunta o nome
 vfnforge api --in-place -n MinhaApp  # usa a pasta atual sem criar subdiretorio
+vfnforge api MinhaApp --force      # sobrescreve uma pasta existente (cuidado)
 vfnforge api -- --dry-run          # argumentos extras sao repassados ao dotnet new
 ```
-Quando voce nao informa o `-n`, o CLI pergunta o nome e usa o mesmo valor como pasta de saida automaticamente. Assim nao ha obrigacao de memorizar `-n`/`-o` sempre que for criar um projeto novo. Caso prefira gerar na pasta atual, basta passar `--in-place` (ou apontar explicitamente `-o .`). O comando `vfnforge api` continua sendo apenas um alias amigavel para `dotnet new vfnforge`, entao todos os parametros da CLI oficial permanecem disponiveis.
+Voce pode simplesmente informar o nome como primeiro argumento (ex.: `vfnforge api MinhaApp`) e o CLI reutiliza o mesmo valor como pasta de saida. Caso nenhum nome seja passado, ele abre um assistente perguntando o nome/diretorio. Para gerar dentro de uma pasta existente, utilize `--in-place` e, se ela ja contiver arquivos, confirme com `--force` (ou responda `y` no modo interativo). O comando `vfnforge api` continua sendo apenas um alias amigavel para `dotnet new vfnforge`, entao todos os parametros da CLI oficial permanecem disponiveis.
 
 ## Autenticacao JWT + multi-tenant por configuracao
 O projeto gerado ja inclui:

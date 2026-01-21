@@ -13,6 +13,13 @@ internal static class Program
 
     private static int Main(string[] args)
     {
+        Console.CancelKeyPress += (_, eventArgs) =>
+        {
+            Console.WriteLine("\nOperacao cancelada pelo usuario.");
+            eventArgs.Cancel = true;
+            Environment.Exit(1);
+        };
+
         if (args.Contains("--version"))
         {
             Console.WriteLine(Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0");
@@ -44,6 +51,7 @@ internal static class Program
         string? name = null;
         string? output = null;
         var forceCurrentDirectory = false;
+        var forceOverwrite = false;
         var passthrough = new List<string>();
 
         for (var i = 0; i < args.Length; i++)
@@ -73,6 +81,10 @@ internal static class Program
             {
                 forceCurrentDirectory = true;
             }
+            else if (arg is "--force")
+            {
+                forceOverwrite = true;
+            }
             else if (arg == "--")
             {
                 passthrough.AddRange(args.Skip(i + 1));
@@ -94,7 +106,7 @@ internal static class Program
             output = name;
         }
 
-        return ExecuteTemplate(name, output, passthrough);
+        return ExecuteTemplate(name, output, passthrough, forceOverwrite);
     }
 
     private static string EnsureProjectName(string? current)
@@ -134,9 +146,21 @@ internal static class Program
         }
     }
 
-    private static int ExecuteTemplate(string name, string? output, IEnumerable<string> passthrough)
+    private static int ExecuteTemplate(string name, string? output, IEnumerable<string> passthrough, bool force)
     {
-        var location = string.IsNullOrWhiteSpace(output) ? "pasta atual" : output!;
+        var targetPath = ResolveTargetPath(output);
+        if (!force && DirectoryHasContent(targetPath))
+        {
+            Console.Error.WriteLine($"O diretorio '{targetPath}' ja possui arquivos. Execute com --force para sobrescrever.");
+            return 1;
+        }
+
+        if (!string.IsNullOrWhiteSpace(output) && !Directory.Exists(targetPath))
+        {
+            Directory.CreateDirectory(targetPath);
+        }
+
+        var location = string.IsNullOrWhiteSpace(output) ? "pasta atual" : targetPath;
         Console.WriteLine($"Criando projeto '{name}' em '{location}'.");
 
         var dotnetArgs = new List<string> { "new", TemplateName, "-n", name };
@@ -177,7 +201,21 @@ internal static class Program
             break;
         }
 
-        return ExecuteTemplate(name, output, Array.Empty<string>());
+        var targetPath = ResolveTargetPath(output);
+        var force = false;
+
+        if (DirectoryHasContent(targetPath))
+        {
+            if (!PromptForceOverwrite(targetPath))
+            {
+                Console.WriteLine("Operacao cancelada.");
+                return 1;
+            }
+
+            force = true;
+        }
+
+        return ExecuteTemplate(name, output, Array.Empty<string>(), force);
     }
 
     private static int UnknownCommand(string command)
@@ -212,6 +250,50 @@ internal static class Program
         return process.ExitCode;
     }
 
+    private static string ResolveTargetPath(string? output)
+    {
+        return string.IsNullOrWhiteSpace(output)
+            ? Directory.GetCurrentDirectory()
+            : Path.GetFullPath(output);
+    }
+
+    private static bool DirectoryHasContent(string path)
+    {
+        if (!Directory.Exists(path))
+        {
+            return false;
+        }
+
+        using var enumerator = Directory.EnumerateFileSystemEntries(path).GetEnumerator();
+        return enumerator.MoveNext();
+    }
+
+    private static bool PromptForceOverwrite(string path)
+    {
+        while (true)
+        {
+            Console.Write($"O diretorio '{path}' nao esta vazio. Sobrescrever? [y/N]: ");
+            var input = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return false;
+            }
+
+            input = input.Trim().ToLowerInvariant();
+            if (input is "y" or "yes" or "s" or "sim")
+            {
+                return true;
+            }
+
+            if (input is "n" or "no" or "nao")
+            {
+                return false;
+            }
+
+            Console.WriteLine("Resposta invalida. Digite 'y' ou 'n'.");
+        }
+    }
+
     private static void PrintUsage()
     {
         Console.WriteLine("vfnforge CLI");
@@ -223,8 +305,11 @@ internal static class Program
         Console.WriteLine("  -n|--name NomeDoProjeto           # informa o nome explicitamente");
         Console.WriteLine("  -o|--output CaminhoDeSaida        # muda o destino (padrao: ./<nome>)");
         Console.WriteLine("  --in-place                        # usa a pasta atual (nao cria subpasta)");
+        Console.WriteLine("  --force                           # permite gerar em diretorio nao vazio");
         Console.WriteLine("  --                                # repassa os argumentos restantes ao dotnet new");
         Console.WriteLine("  --version                         # exibe versao");
         Console.WriteLine("  -h|--help                         # mostra esta tela");
+        Console.WriteLine("Exemplo:");
+        Console.WriteLine("  vfnforge api MinhaApp -- --dry-run");
     }
 }
