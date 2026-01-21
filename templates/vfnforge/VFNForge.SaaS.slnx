@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VFNForge.SaaS.Api/VFNForge.SaaS.Api.csproj" />
+    <Project Path="src/VFNForge.SaaS.Application/VFNForge.SaaS.Application.csproj" />
+    <Project Path="src/VFNForge.SaaS.Contracts/VFNForge.SaaS.Contracts.csproj" />
+    <Project Path="src/VFNForge.SaaS.Domain/VFNForge.SaaS.Domain.csproj" />
+    <Project Path="src/VFNForge.SaaS.Infrastructure/VFNForge.SaaS.Infrastructure.csproj" />
+  </Folder>
+</Solution>

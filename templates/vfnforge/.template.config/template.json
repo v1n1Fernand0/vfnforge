@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Vinicius Fernando",
+  "classifications": [ "SaaS", "CleanArchitecture" ],
+  "name": "VFNForge SaaS Template",
+  "identity": "VFNForge.Templates.SaaS",
+  "shortName": "vfnforge",
+  "sourceName": "VFNForge.SaaS",
+  "preferNameDirectory": true,
+  "tags": { "language": "C#", "type": "project" }
+}

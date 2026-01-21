@@ -1,0 +1,6 @@
+@VFNForge.SaaS.Api_HostAddress = http://localhost:5070
+
+GET {{VFNForge.SaaS.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
