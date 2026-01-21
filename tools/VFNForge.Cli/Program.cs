@@ -27,7 +27,7 @@ internal static class Program
         var rest = args.Skip(1).ToArray();
         return command switch
         {
-            "new" => RunNew(rest),
+            "new" or "api" => RunNew(rest),
             _ => UnknownCommand(command)
         };
     }
@@ -65,6 +65,10 @@ internal static class Program
             {
                 passthrough.AddRange(args.Skip(i + 1));
                 break;
+            }
+            else if (!arg.StartsWith("-", StringComparison.Ordinal) && name is null)
+            {
+                name = arg;
             }
             else
             {
@@ -118,8 +122,12 @@ internal static class Program
     private static void PrintUsage()
     {
         Console.WriteLine("vfnforge CLI");
-        Console.WriteLine("Usage:");
-        Console.WriteLine("  vfnforge new -n MinhaApp [-o ./output] [-- additional dotnet new args]");
+        Console.WriteLine("Commands:");
+        Console.WriteLine("  vfnforge api -n MinhaApp [-o ./output] [args]   # cria um projeto SaaS");
+        Console.WriteLine("  vfnforge new -n MinhaApp ...                    # alias para 'api'");
+        Console.WriteLine("Options:");
+        Console.WriteLine("  -n|--name NomeDoProjeto");
+        Console.WriteLine("  -o|--output CaminhoDeSaida");
         Console.WriteLine("  vfnforge --version");
     }
 }

@@ -52,29 +52,62 @@ dotnet build MinhaApp/MinhaApp.slnx
 
 ### Instalacao direta via GitHub (sem clonar)
 Desde o .NET 8, `dotnet new install` consegue consumir um repo Git diretamente. Se preferir um comando pronto (sem clonar manualmente), use:
-\- `dotnet new install https://github.com/vinic/vfnforge`
+\- `dotnet new install https://github.com/v1n1Fernand0/vfnforge`
 
 Isso baixa a ultima versao do template direto do GitHub e ja deixa o `vfnforge` disponivel.
 
 Se quiser controlar branch/versao especifica (ex: `main`):
-\- `dotnet new install https://github.com/vinic/vfnforge::main`
+\- `dotnet new install https://github.com/v1n1Fernand0/vfnforge::main`
 
 Quando precisar remover:
-\- `dotnet new uninstall https://github.com/vinic/vfnforge`
+\- `dotnet new uninstall https://github.com/v1n1Fernand0/vfnforge`
 
 Se estiver em um ambiente sem suporte ao fluxo acima, ha tambem um comando one-liner que clona para uma pasta temporaria, instala o template e limpa o cache:
 
 **PowerShell**
 ```powershell
-pwsh -Command "$tmp = Join-Path $env:TEMP ('vfnforge-' + [guid]::NewGuid()); git clone https://github.com/vinic/vfnforge $tmp --depth 1; dotnet new install (Join-Path $tmp 'templates/vfnforge'); Remove-Item $tmp -Recurse -Force"
+pwsh -Command "$tmp = Join-Path $env:TEMP ('vfnforge-' + [guid]::NewGuid()); git clone https://github.com/v1n1Fernand0/vfnforge $tmp --depth 1; dotnet new install (Join-Path $tmp 'templates/vfnforge'); Remove-Item $tmp -Recurse -Force"
 ```
 
 **Bash**
 ```bash
-tmp=$(mktemp -d); git clone https://github.com/vinic/vfnforge "$tmp" --depth 1 && dotnet new install "$tmp/templates/vfnforge" && rm -rf "$tmp"
+tmp=$(mktemp -d); git clone https://github.com/v1n1Fernand0/vfnforge "$tmp" --depth 1 && dotnet new install "$tmp/templates/vfnforge" && rm -rf "$tmp"
 ```
 
 Com isso, qualquer terminal consegue instalar o template diretamente sem precisar clonar o repo manualmente; depois basta executar `dotnet new vfnforge -n MinhaApp`.
+
+## CLI `vfnforge api`
+Instalar o template tambem traz o Global Tool `vfnforge`. Com ele voce cria projetos via:
+```bash
+vfnforge api -n MinhaApp [-o ./saida] [outros argumentos do dotnet new]
+```
+O comando `vfnforge api` e um alias amigavel para `dotnet new vfnforge`.
+
+## Instalador Windows (.exe)
+No diretorio `installers/Windows/VFNForge.Installer/` existe um bootstrapper que baixa o repo oficial (`https://github.com/v1n1Fernand0/vfnforge`), instala o template e registra o global tool automaticamente.
+
+### Como gerar o instalador
+```powershell
+dotnet publish installers/Windows/VFNForge.Installer/VFNForge.Installer.csproj `
+    -c Release -r win-x64 --self-contained true `
+    /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
+```
+O executavel sai em `installers/Windows/VFNForge.Installer/bin/Release/net10.0/win-x64/publish/VFNForge.Installer.exe`. Distribua esse arquivo para os usuarios Windows.
+
+### O que o instalador faz
+- Baixa o zip da branch escolhida (default `main`).
+- Executa `dotnet new install` apontando para `templates/vfnforge`.
+- Executa `dotnet pack` + `dotnet tool install --global VFNForge.Cli` a partir da pasta `tools/VFNForge.Cli`.
+- Exibe mensagem final com `vfnforge api -n MinhaApp`.
+
+Argumentos disponiveis:
+```
+VFNForge.Installer.exe [opcoes]
+  --branch|-b <nome>   branch/tag do Git (padrao: main)
+  --no-cli             pula instalacao do global tool (so instala o template)
+  --keep-temp          mantem a pasta temporaria para debug
+```
+O instalador exige que o .NET SDK 10 esteja presente (mesmo requisito do template).
 
 ## Empacotamento e publicacao (NuGet)
 1. Gerar o pacote `VFNForge.Templates`:
