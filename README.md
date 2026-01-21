@@ -65,7 +65,7 @@ curl -sSL https://raw.githubusercontent.com/v1n1Fernand0/vfnforge/main/scripts/b
 ```
 Opcoes: `--branch main`, `--repo <url>`, `--no-cli`.
 
-Depois desse comando voce ja consegue rodar `vfnforge api -n MinhaApp` em qualquer terminal.
+Depois desse comando voce ja consegue rodar `vfnforge api MinhaApp` (ou apenas `vfnforge api` para usar o assistente) em qualquer terminal.
 
 ### Instalacao direta via GitHub (dotnet new install)
 Tambem e possivel usar apenas o `dotnet new` para consumir o repo:
@@ -73,11 +73,14 @@ Tambem e possivel usar apenas o `dotnet new` para consumir o repo:
 - `dotnet new install https://github.com/v1n1Fernand0/vfnforge::main` (branch especifica)
 - `dotnet new uninstall https://github.com/v1n1Fernand0/vfnforge`
 ## CLI `vfnforge api`
-Instalar o template tambem traz o Global Tool `vfnforge`. Com ele voce cria projetos via:
+Instalar o template tambem traz o Global Tool `vfnforge`, que foi pensado para deixar o fluxo o mais simples possivel:
 ```bash
-vfnforge api -n MinhaApp [-o ./saida] [outros argumentos do dotnet new]
+vfnforge api MinhaApp              # cria ./MinhaApp com tudo renomeado
+vfnforge api                       # abre um assistente interativo e pergunta o nome
+vfnforge api --in-place -n MinhaApp  # usa a pasta atual sem criar subdiretorio
+vfnforge api -- --dry-run          # argumentos extras sao repassados ao dotnet new
 ```
-O comando `vfnforge api` e um alias amigavel para `dotnet new vfnforge`.
+Quando voce nao informa o `-n`, o CLI pergunta o nome e usa o mesmo valor como pasta de saida automaticamente. Assim nao ha obrigacao de memorizar `-n`/`-o` sempre que for criar um projeto novo. Caso prefira gerar na pasta atual, basta passar `--in-place` (ou apontar explicitamente `-o .`). O comando `vfnforge api` continua sendo apenas um alias amigavel para `dotnet new vfnforge`, entao todos os parametros da CLI oficial permanecem disponiveis.
 
 ## Autenticacao JWT + multi-tenant por configuracao
 O projeto gerado ja inclui:
@@ -117,7 +120,7 @@ Invoke-WebRequest https://github.com/v1n1Fernand0/vfnforge/releases/latest/downl
 - Baixa o zip da branch escolhida (default `main`).
 - Executa `dotnet new install` apontando para `templates/vfnforge`.
 - Executa `dotnet pack` + `dotnet tool install --global VFNForge.Cli` a partir da pasta `tools/VFNForge.Cli`.
-- Exibe mensagem final com `vfnforge api -n MinhaApp`.
+- Exibe mensagem final com `vfnforge api MinhaApp`.
 
 Argumentos disponiveis:
 ```
@@ -139,7 +142,7 @@ O instalador exige que o .NET SDK 10 esteja presente (mesmo requisito do templat
 O template gera uma `.slnx`, aplica `net10.0` via `Directory.Build.props`, inclui `.gitignore`, `.editorconfig` e `global.json`, e ja ignora bin/obj/.vs/_out etc. durante a instalacao (`template.json`).
 
 ## Ferramenta global opcional (`vfnforge`)
-O diretorio `tools/VFNForge.Cli` contem um console app configurado como .NET Global Tool. Ele apenas repassa `vfnforge new -n MinhaApp` para `dotnet new vfnforge`, mas melhora a descoberta.
+O diretorio `tools/VFNForge.Cli` contem um console app configurado como .NET Global Tool. Ele fornece o comando amigavel `vfnforge api`, que internamente chama `dotnet new vfnforge` e cuida do nome e da pasta automaticamente.
 
 Para testar localmente:
 ```powershell
@@ -147,7 +150,7 @@ Para testar localmente:
 dotnet pack .\tools\VFNForge.Cli\VFNForge.Cli.csproj -c Release -o .\_out\tool
 # instalar via source local
 dotnet tool install --global VFNForge.Cli --add-source .\_out\tool
-vfnforge new -n MinhaApp
+vfnforge api MinhaApp
 vfnforge --version
 ```
 Publicar o tool e opcional; o template ja entrega o fluxo principal.
